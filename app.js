@@ -127,7 +127,7 @@ app.delete(
 app.get(
   "/articles",
   asyncHandler(async (req, res) => {
-    const { order = "recent", search = "" } = req.query;
+    const { offset = 0, limit = 100, order = "recent", search = "" } = req.query;
     let orderBy;
     switch (order) {
       case "favorite":
@@ -152,6 +152,8 @@ app.get(
     const articles = await prisma.article.findMany({
       where,
       orderBy,
+      skip: parseInt(offset),
+      take: parseInt(limit),
     });
     res.send(articles);
   })
