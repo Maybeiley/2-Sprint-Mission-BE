@@ -283,13 +283,13 @@ app.delete(
 app.get(
   "/article/:articleId/comments",
   asyncHandler(async (req, res) => {
-    const { offset = 0, limit = 10 } = req.query;
     const { articleId } = req.params;
 
     const articleComments = await prisma.articleComment.findMany({
       where: { articleId },
-      skip: parseInt(offset),
-      take: parseInt(limit),
+			orderBy: {
+        createdAt: 'desc', // createdAt 필드 기준으로 내림차순 정렬
+      },
     });
     res.send(articleComments);
   })
