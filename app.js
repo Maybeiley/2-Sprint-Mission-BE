@@ -288,7 +288,7 @@ app.get(
     const articleComments = await prisma.articleComment.findMany({
       where: { articleId },
 			orderBy: {
-        createdAt: 'desc', // createdAt 필드 기준으로 내림차순 정렬
+        createdAt: 'asc', // createdAt 필드 기준으로 내림차순 정렬
       },
     });
     res.send(articleComments);
