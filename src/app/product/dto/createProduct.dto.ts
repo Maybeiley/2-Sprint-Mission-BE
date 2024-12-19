@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import { IsArray, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CreateProductDto {
@@ -15,9 +16,6 @@ export class CreateProductDto {
 
   @IsArray()
   @IsNotEmpty()
+  @IsString({ each: true })
   tags: string[];
-
-  @IsArray()
-  @IsNotEmpty()
-  images: string[];
 }

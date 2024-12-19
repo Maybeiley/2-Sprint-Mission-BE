@@ -1,7 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ProductRepository } from './product.repository';
 import { Prisma, Product } from '@prisma/client';
-import { ProductSort, Sort } from 'src/utils/sortOption';
+import { ProductSort } from 'src/utils/sortOption';
+import { UploadService } from 'src/database/s3/upload.service';
 
 export type ProductResponse = {
   totalCount: number;
@@ -10,7 +11,10 @@ export type ProductResponse = {
 
 @Injectable()
 export class ProductService {
-  constructor(private readonly repository: ProductRepository) {}
+  constructor(
+    private readonly repository: ProductRepository,
+    private readonly s3: UploadService,
+  ) {}
 
   async get(queries: Query.List): Promise<ProductResponse> {
     const { skip, take, orderBy, keyword } = queries;
@@ -43,9 +47,11 @@ export class ProductService {
 
   async create(
     userId: string,
+    file: Express.Multer.File,
     data: Prisma.ProductCreateInput,
   ): Promise<Product> {
-    const newData = { ownerId: userId, ...data };
+    const imgUrl = await this.s3.upload(file);
+    const newData = { ownerId: userId, images: [imgUrl], ...data };
     return await this.repository.create(newData);
   }
 

@@ -7,7 +7,9 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ProductResponse, ProductService } from './product.service';
 import { Product } from '@prisma/client';
@@ -16,6 +18,7 @@ import { UpdateProductDto } from './dto/updateProduct.dto';
 import { UserId } from 'src/decorators/user.decorator';
 import { Public } from 'src/decorators/public.decorator';
 import { ProductGuard } from 'src/guards/authorization.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('items')
 export class ProductController {
@@ -35,12 +38,14 @@ export class ProductController {
     return this.service.getById(productId);
   }
 
+  @UseInterceptors(FileInterceptor('file'))
   @Post()
   async createProduct(
     @UserId() userId: string,
+    @UploadedFile() file: Express.Multer.File,
     @Body() data: CreateProductDto,
   ): Promise<Product> {
-    return await this.service.create(userId, data);
+    return await this.service.create(userId, file, data);
   }
 
   @UseGuards(ProductGuard)

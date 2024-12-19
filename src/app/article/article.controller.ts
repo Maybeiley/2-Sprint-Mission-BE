@@ -7,7 +7,9 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ArticleResponse, ArticleService } from './article.service';
 import { Article } from '@prisma/client';
@@ -16,6 +18,7 @@ import { UpdateArticleDto } from './dto/updateArticle.dto';
 import { UserId } from 'src/decorators/user.decorator';
 import { Public } from 'src/decorators/public.decorator';
 import { ArticleGuard } from 'src/guards/authorization.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('articles')
 export class ArticleController {
@@ -43,12 +46,14 @@ export class ArticleController {
     return this.service.getById(articleId);
   }
 
+  @UseInterceptors(FileInterceptor('file'))
   @Post()
   async createArticle(
     @UserId() userId: string,
+    @UploadedFile() file: Express.Multer.File,
     @Body() data: CreateArticleDto,
   ): Promise<Article> {
-    return await this.service.create(userId, data);
+    return await this.service.create(userId, file, data);
   }
 
   @UseGuards(ArticleGuard)

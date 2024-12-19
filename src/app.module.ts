@@ -7,9 +7,11 @@ import { CommentModule } from './app/comment/comment.module';
 import { LikeModule } from './app/like/like.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtGuard } from './guards/jwt.guard';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
     AuthModule,
     ProductModule,
     ArticleModule,

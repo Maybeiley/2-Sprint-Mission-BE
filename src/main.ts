@@ -6,7 +6,11 @@ import { ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+    }),
+  );
 
   // swagger 세부 세팅 참고 : https://docs.nestjs.com/openapi/introduction
   const config = new DocumentBuilder()

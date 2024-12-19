@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma, Article } from '@prisma/client';
 import { ArticleRepository } from './article.repository';
+import { UploadService } from 'src/database/s3/upload.service';
 
 export type ArticleResponse = {
   totalCount: number;
@@ -9,7 +10,10 @@ export type ArticleResponse = {
 
 @Injectable()
 export class ArticleService {
-  constructor(private readonly repository: ArticleRepository) {}
+  constructor(
+    private readonly repository: ArticleRepository,
+    private readonly s3: UploadService,
+  ) {}
 
   async get(queries: {
     skip?: number;
@@ -55,9 +59,11 @@ export class ArticleService {
 
   async create(
     userId: string,
+    file: Express.Multer.File,
     data: Prisma.ArticleCreateInput,
   ): Promise<Article> {
-    const newData = { writerId: userId, ...data };
+    const imgUrl = await this.s3.upload(file);
+    const newData = { writerId: userId, image: imgUrl, ...data };
     return await this.repository.create(newData);
   }
 
